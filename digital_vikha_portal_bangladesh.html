@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="bn" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ডিজিটাল ভিক্ষা ও সদকা পোর্টাল বিডি | Digital Alms BD</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        bkash: '#e2136e',
+                        nagad: '#f7931e',
+                        rocket: '#8c3494',
+                        bdgreen: '#006a4e',
+                        bdred: '#f42a41'
+                    },
+                    fontFamily: {
+                        sans: ['Hind Siliguri', 'Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Google Fonts for Bengali -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <!-- Custom CSS Styles -->
+    <style>
+        body {
+            font-family: 'Hind Siliguri', sans-serif;
+        }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .pulse-live {
+            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            animation: pulse-red 2s infinite;
+        }
+        @keyframes pulse-red {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-bdgreen selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <!-- Brand Logo -->
+            <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('explore')">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-bdgreen to-emerald-400 flex items-center justify-center shadow-lg shadow-emerald-900/40">
+                    <i class="fa-solid font-bold text-xl text-slate-950 fa-hand-holding-dollar"></i>
+                </div>
+                <div>
+                    <span class="text-xl font-bold bg-gradient-to-r from-emerald-400 via-teal-200 to-amber-300 bg-clip-text text-transparent">
+                        ডিজিটাল ভিক্ষা ও সদকা
+                    </span>
+                    <span class="hidden sm:inline-block text-xs bg-slate-800 text-emerald-400 px-2 py-0.5 rounded-full ml-2 border border-emerald-500/30">
+                        স্মার্ট বিডি ২.০
+                    </span>
+                </div>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="hidden md:flex items-center gap-1 bg-slate-800/60 p-1.5 rounded-full border border-slate-700/50">
+                <button onclick="switchTab('explore')" id="nav-explore" class="nav-btn px-4 py-1.5 rounded-full text-sm font-medium transition-all bg-emerald-600 text-white shadow-md">
+                    <i class="fa-solid fa-list-check mr-1.5"></i> ভিক্ষুক তালিকা
+                </button>
+                <button onclick="switchTab('radar')" id="nav-radar" class="nav-btn px-4 py-1.5 rounded-full text-sm font-medium text-slate-300 hover:text-white transition-all">
+                    <i class="fa-solid fa-location-crosshairs mr-1.5 text-rose-400"></i> লাইভ ম্যাপ
+                </button>
+                <button onclick="switchTab('register')" id="nav-register" class="nav-btn px-4 py-1.5 rounded-full text-sm font-medium text-slate-300 hover:text-white transition-all">
+                    <i class="fa-solid fa-user-plus mr-1.5 text-amber-400"></i> নতুন রেজিস্টার
+                </button>
+                <button onclick="switchTab('dua-studio')" id="nav-dua-studio" class="nav-btn px-4 py-1.5 rounded-full text-sm font-medium text-slate-300 hover:text-white transition-all">
+                    <i class="fa-solid fa-volume-high mr-1.5 text-teal-400"></i> দোয়া স্টুডিও
+                </button>
+            </nav>
+
+            <!-- Quick Action & Stats -->
+            <div class="flex items-center gap-3">
+                <button onclick="openRegisterModal()" class="hidden sm:flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-600 text-slate-950 font-bold px-4 py-2 rounded-xl text-sm shadow-lg shadow-amber-500/20 hover:brightness-110 transition-all">
+                    <i class="fa-solid fa-qrcode"></i> কিউআর কোড তৈরি
+                </button>
+                <button onclick="toggleMobileMenu()" class="md:hidden text-slate-300 hover:text-white text-xl p-2">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Drawer Navigation -->
+        <div id="mobile-menu" class="hidden md:hidden bg-slate-900 border-b border-slate-800 px-4 py-3 space-y-2">
+            <button onclick="switchTab('explore'); toggleMobileMenu()" class="w-full text-left py-2 px-3 rounded-lg text-emerald-400 font-medium bg-slate-800">
+                <i class="fa-solid fa-list-check mr-2"></i> ভিক্ষুক তালিকা
+            </button>
+            <button onclick="switchTab('radar'); toggleMobileMenu()" class="w-full text-left py-2 px-3 rounded-lg text-slate-300 hover:bg-slate-800">
+                <i class="fa-solid fa-location-crosshairs mr-2 text-rose-400"></i> লাইভ ম্যাপ
+            </button>
+            <button onclick="switchTab('register'); toggleMobileMenu()" class="w-full text-left py-2 px-3 rounded-lg text-slate-300 hover:bg-slate-800">
+                <i class="fa-solid fa-user-plus mr-2 text-amber-400"></i> নতুন রেজিস্টার
+            </button>
+            <button onclick="switchTab('dua-studio'); toggleMobileMenu()" class="w-full text-left py-2 px-3 rounded-lg text-slate-300 hover:bg-slate-800">
+                <i class="fa-solid fa-volume-high mr-2 text-teal-400"></i> দোয়া স্টুডিও
+            </button>
+        </div>
+    </header>
+
+    <!-- Hero Announcement & Live Metrics Bar -->
+    <section class="bg-gradient-to-r from-slate-900 via-emerald-950/60 to-slate-900 border-b border-slate-800 py-6 px-4">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="space-y-2 text-center md:text-left">
+                <div class="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs px-3 py-1 rounded-full">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-live"></span>
+                    ক্যাশলেস বাংলাদেশ: রোদ-বৃষ্টিহীন ডিজিটাল ভিক্ষা ব্যবস্থা
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                    বাড়িতে বসেই দিন <span class="text-amber-400">সদকা</span>, নগদ ও <span class="text-bkash font-bold">বিকাশে</span> নিন দোয়া
+                </h1>
+                <p class="text-slate-400 text-sm max-w-2xl">
+                    রাস্তায় ট্রাফিক জ্যাম বা রোদে ঘোরাঘুরির আর প্রয়োজন নেই! বাংলাদেশের স্মার্ট ভিক্ষুক ও দুস্থ সাহায্যপ্রার্থীদের সরাসরি বিকাশ, নগদ ও রকেটে ভিক্ষা দিন। সাথে সাথে পান অডিও দোয়া ও ইনস্ট্যান্ট ডিজিটাল রসিদ।
+                </p>
+            </div>
+
+            <!-- Live Stats Widget -->
+            <div class="grid grid-cols-3 gap-3 bg-slate-900/80 p-3 rounded-2xl border border-slate-800 min-w-[280px] sm:min-w-[340px]">
+                <div class="text-center p-2 rounded-xl bg-slate-800/50">
+                    <span class="text-xs text-slate-400 block">আজকের সংগ্রহ</span>
+                    <span class="text-lg font-bold text-emerald-400" id="stat-total-collected">৳৪৫,৮২০</span>
+                </div>
+                <div class="text-center p-2 rounded-xl bg-slate-800/50">
+                    <span class="text-xs text-slate-400 block">সক্রিয় ভিক্ষুক</span>
+                    <span class="text-lg font-bold text-amber-400" id="stat-active-seekers">১২৮ জন</span>
+                </div>
+                <div class="text-center p-2 rounded-xl bg-slate-800/50">
+                    <span class="text-xs text-slate-400 block">দেওয়া দোয়া</span>
+                    <span class="text-lg font-bold text-teal-400" id="stat-duas-given">১,৪২০টি</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- ================= TAB 1: SEEKER DIRECTORY ================= -->
+        <section id="tab-explore" class="tab-content space-y-6">
+            <!-- Filter & Search Controls -->
+            <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 bg-slate-900 p-4 rounded-2xl border border-slate-800">
+                <!-- Search Box -->
+                <div class="relative flex-1">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400"></i>
+                    <input type="text" id="search-input" onkeyup="filterSeekers()" placeholder="নাম, এলাকা (যেমন: ফার্মগেট, গুলশান, কারওয়ান বাজার) বা সমস্যা লিখে খুঁজুন..." 
+                           class="w-full pl-10 pr-4 py-2.5 bg-slate-950 border border-slate-700/70 rounded-xl text-sm focus:outline-none focus:border-emerald-500 text-slate-100 placeholder-slate-500">
+                </div>
+
+                <!-- Category Filters -->
+                <div class="flex items-center gap-2 overflow-x-auto pb-2 lg:pb-0 scrollbar-none">
+                    <button onclick="setCategoryFilter('all')" class="cat-filter-btn px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap bg-emerald-600 text-white">
+                        সবাই (All)
+                    </button>
+                    <button onclick="setCategoryFilter('disabled')" class="cat-filter-btn px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap bg-slate-800 text-slate-300 hover:bg-slate-700">
+                        <i class="fa-solid fa-wheelchair text-rose-400 mr-1"></i> শারীরিক প্রতিবন্ধী
+                    </button>
+                    <button onclick="setCategoryFilter('elderly')" class="cat-filter-btn px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap bg-slate-800 text-slate-300 hover:bg-slate-700">
+                        <i class="fa-solid fa-person-cane text-amber-400 mr-1"></i> বয়স্ক ও অসহায়
+                    </button>
+                    <button onclick="setCategoryFilter('hafeez')" class="cat-filter-btn px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap bg-slate-800 text-slate-300 hover:bg-slate-700">
+                        <i class="fa-solid fa-book-quran text-teal-400 mr-1"></i> অন্ধ হাফেজ/মাদরাসা
+                    </button>
+                    <button onclick="setCategoryFilter('artist')" class="cat-filter-btn px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap bg-slate-800 text-slate-300 hover:bg-slate-700">
+                        <i class="fa-solid fa-guitar text-indigo-400 mr-1"></i> বাউল/পথশিল্পী
+                    </button>
+                </div>
+            </div>
+
+            <!-- Seekers Grid -->
+            <div id="seekers-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Seeker Cards dynamically inserted via JS -->
+            </div>
+        </section>
+
+        <!-- ================= TAB 2: LIVE RADAR / MAP ================= -->
+        <section id="tab-radar" class="tab-content hidden space-y-6">
+            <div class="bg-slate-900 p-6 rounded-3xl border border-slate-800">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-map-location-dot text-rose-500"></i> ডিজিটাল ভিক্ষুক লোকেশন রাডার
+                        </h2>
+                        <p class="text-xs text-slate-400">বাংলাদেশের প্রধান পয়েন্টে অবস্থানরত ডিজিটাল ভিক্ষুকদের ভার্চুয়াল ম্যাপ</p>
+                    </div>
+                    <div class="flex items-center gap-2 text-xs text-slate-400">
+                        <span class="inline-block w-3 h-3 rounded-full bg-emerald-500"></span> অনলাইন পয়েন্ট
+                        <span class="inline-block w-3 h-3 rounded-full bg-amber-500 ml-2"></span> টার্গেট বাঁকি
+                    </div>
+                </div>
+
+                <!-- Interactive Canvas Radar Map -->
+                <div class="relative w-full h-[450px] bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 flex items-center justify-center">
+                    <!-- Grid Background Lines -->
+                    <div class="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px] opacity-40"></div>
+                    
+                    <!-- Simulated Map Graphic -->
+                    <div class="absolute inset-0 flex items-center justify-center opacity-20 pointer-events-none">
+                        <i class="fa-solid fa-map text-[300px] text-slate-700"></i>
+                    </div>
+
+                    <!-- Map Pins Container -->
+                    <div id="map-pins-container" class="relative w-full h-full">
+                        <!-- Pins inserted by JS -->
+                    </div>
+
+                    <!-- Map Overlay Legend Footer -->
+                    <div class="absolute bottom-4 left-4 right-4 bg-slate-900/90 backdrop-blur border border-slate-800 p-3 rounded-xl flex items-center justify-between text-xs text-slate-300">
+                        <span><i class="fa-solid fa-circle-info text-amber-400 mr-1"></i> ম্যাপের যেকোনো পয়েন্টে ক্লিক করে সরাসরি ভিক্ষা ও সদকা পাঠান।</span>
+                        <span class="font-mono text-emerald-400">লাইভ জিপিএস সিগন্যাল: সক্রিয়</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 3: SEEKER REGISTRATION ================= -->
+        <section id="tab-register" class="tab-content hidden max-w-3xl mx-auto space-y-6">
+            <div class="bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-800 shadow-2xl">
+                <div class="text-center space-y-2 mb-8">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center mx-auto text-xl">
+                        <i class="fa-solid fa-address-card"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white">ডিজিটাল ভিক্ষুক রেজিস্ট্রেশন ফরম</h2>
+                    <p class="text-slate-400 text-sm">হাসেল ছাড়া সরাসরি মোবাইল ব্যাংকিং এর মাধ্যমে ভিক্ষা পেতে তথ্য দিন</p>
+                </div>
+
+                <form id="seeker-register-form" onsubmit="handleSeekerRegister(event)" class="space-y-5">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1.5">আপনার নাম / পরিচয় *</label>
+                            <input type="text" id="reg-name" required placeholder="যেমন: চাচ্চু কাসেম" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm focus:border-amber-500 text-slate-100">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1.5">নিয়মিত স্ট্যান্ড / অবস্থান এলাকা *</label>
+                            <input type="text" id="reg-location" required placeholder="যেমন: ফার্মগেট ওভারব্রিজ, ঢাকা" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm focus:border-amber-500 text-slate-100">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1.5">শ্রেণী / সাহায্য চাওয়ার কারণ *</label>
+                            <select id="reg-category" required class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm focus:border-amber-500 text-slate-100">
+                                <option value="disabled">শারীরিক প্রতিবন্ধী</option>
+                                <option value="elderly">বয়স্ক ও কর্মক্ষমতাহীন</option>
+                                <option value="hafeez">অন্ধ হাফেজ / এতিমখানা</option>
+                                <option value="artist">পথশিল্পী / একতারা সংগীত</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1.5">দৈনিক ভিক্ষা পাওয়ার লক্ষ্য (টাকা) *</label>
+                            <input type="number" id="reg-target" required min="100" max="10000" placeholder="যেমন: ৫০০" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm focus:border-amber-500 text-slate-100">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1.5">বিকাশ ব্যক্তিগত নম্বর *</label>
+                            <input type="text" id="reg-bkash" required placeholder="017XXXXXXXX" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm focus:border-bkash text-slate-100">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1.5">নগদ নম্বর (ঐচ্ছিক)</label>
+                            <input type="text" id="reg-nagad" placeholder="018XXXXXXXX" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm focus:border-nagad text-slate-100">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">আপনার করুণ গল্প / আবেগপূর্ণ বানী *</label>
+                        <textarea id="reg-story" required rows="3" placeholder="কেন মানুষ আপনাকে দান করবে? (যেমন: দুই সন্তান নিয়ে খুব কষ্টে আছি, ওষুধ কেনার টাকা নেই...)" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm focus:border-amber-500 text-slate-100"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">দানকারীকে দেওয়ার জন্য অটোমেটিক দোয়া বা আশীর্বাদ *</label>
+                        <input type="text" id="reg-dua" required placeholder="যেমন: আল্লাহ্ আপনার মা-বাবাকে বেহেশত নসিব করুন ও আপনার হায়াত বৃদ্ধি করুন।" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm focus:border-amber-500 text-slate-100">
+                    </div>
+
+                    <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-slate-950 font-bold rounded-xl shadow-xl hover:brightness-110 transition-all text-base flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-square-check"></i> রেজিস্ট্রেশন সম্পন্ন করুন ও কিউআর কার্ড পান
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- ================= TAB 4: AUDIO DUA STUDIO ================= -->
+        <section id="tab-dua-studio" class="tab-content hidden max-w-4xl mx-auto space-y-6">
+            <div class="bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-800">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-volume-high text-teal-400"></i> ডিজিটাল দোয়া ও আশীর্বাদ জেনারেটর
+                        </h2>
+                        <p class="text-xs text-slate-400">যে কোনো অঙ্কের দান বা টেস্টের জন্য কণ্ঠের ভাষায় তাৎক্ষণিক দোয়া শুনুন</p>
+                    </div>
+                    <span class="px-3 py-1 bg-teal-500/10 border border-teal-500/30 text-teal-400 text-xs rounded-full">
+                        AI ভয়েস ইঞ্জিন
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Preset Dua Cards -->
+                    <div onclick="playCustomDua('আল্লাহ্ আপনার দান কবুল করুন এবং আপনার ধনসম্পদে বরকত দিন!') text-slate-100" class="cursor-pointer p-4 rounded-2xl bg-slate-950 border border-slate-800 hover:border-teal-500/50 transition-all group">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs text-teal-400 font-semibold">সাধারণ সদকা দোয়া</span>
+                            <i class="fa-solid fa-circle-play text-teal-400 group-hover:scale-110 transition-transform"></i>
+                        </div>
+                        <p class="text-sm text-slate-200">"আল্লাহ্ আপনার দান কবুল করুন এবং আপনার ধনসম্পদে বরকত দিন!"</p>
+                    </div>
+
+                    <div onclick="playCustomDua('আল্লাহ্ আপনার হায়াত দরাজ করুক এবং পরিবারের সবাইকে সমস্ত বিপদ আপদ থেকে রক্ষা করুক!')" class="cursor-pointer p-4 rounded-2xl bg-slate-950 border border-slate-800 hover:border-teal-500/50 transition-all group">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs text-amber-400 font-semibold">দীর্ঘায়ু ও শেফা দোয়া</span>
+                            <i class="fa-solid fa-circle-play text-amber-400 group-hover:scale-110 transition-transform"></i>
+                        </div>
+                        <p class="text-sm text-slate-200">"আল্লাহ্ আপনার হায়াত দরাজ করুক এবং পরিবারের সবাইকে সমস্ত বিপদ আপদ থেকে রক্ষা করুক!"</p>
+                    </div>
+
+                    <div onclick="playCustomDua('হে আল্লাহ্, এই দানকারীর মা-বাবাকে মাফ করে দিন এবং জান্নাতুল ফেরদাউস নসিব করুন!')" class="cursor-pointer p-4 rounded-2xl bg-slate-950 border border-slate-800 hover:border-teal-500/50 transition-all group">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs text-rose-400 font-semibold">বাবা-মায়ের রুহের মাগফিরাত</span>
+                            <i class="fa-solid fa-circle-play text-rose-400 group-hover:scale-110 transition-transform"></i>
+                        </div>
+                        <p class="text-sm text-slate-200">"হে আল্লাহ্, এই দানকারীর মা-বাবাকে মাফ করে দিন এবং জান্নাতুল ফেরদাউস নসিব করুন!"</p>
+                    </div>
+
+                    <div onclick="playCustomDua('আল্লাহ্ আপনার ব্যবসায় তরক্কী দান করুক এবং অভাব দূর করে দিক!')" class="cursor-pointer p-4 rounded-2xl bg-slate-950 border border-slate-800 hover:border-teal-500/50 transition-all group">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs text-emerald-400 font-semibold">ব্যবসার উন্নতি ও বরকত</span>
+                            <i class="fa-solid fa-circle-play text-emerald-400 group-hover:scale-110 transition-transform"></i>
+                        </div>
+                        <p class="text-sm text-slate-200">"আল্লাহ্ আপনার ব্যবসায় তরক্কী দান করুক এবং অভাব দূর করে দিক!"</p>
+                    </div>
+                </div>
+
+                <!-- Test Text Dua Player -->
+                <div class="mt-6 p-4 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-3">
+                    <label class="block text-xs text-slate-400">নিজের পছন্দের দোয়া লিখে শুনুন:</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="custom-dua-input" placeholder="এখানে আপনার কাঙ্ক্ষিত দোয়ার লেখা লিখুন..." class="flex-1 px-4 py-2 bg-slate-900 border border-slate-700 rounded-xl text-sm text-slate-100">
+                        <button onclick="playInputDua()" class="px-5 py-2 bg-teal-600 hover:bg-teal-500 text-white text-sm font-semibold rounded-xl transition-all flex items-center gap-2">
+                            <i class="fa-solid fa-volume-high"></i> প্লে করুন
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MFS Checkout Modal (bKash / Nagad / Rocket Sandbox) -->
+    <div id="checkout-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl transition-all transform scale-95 opacity-0 duration-200" id="modal-box">
+            <!-- Modal Header -->
+            <div class="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-900">
+                <div class="flex items-center gap-3">
+                    <img id="modal-seeker-avatar" class="w-10 h-10 rounded-full object-cover border border-amber-500/50" src="" alt="Seeker">
+                    <div>
+                        <h3 id="modal-seeker-name" class="font-bold text-white text-base">চাচ্চু কাসেম</h3>
+                        <p id="modal-seeker-location" class="text-xs text-slate-400">ফার্মগেট, ঢাকা</p>
+                    </div>
+                </div>
+                <button onclick="closeCheckoutModal()" class="text-slate-400 hover:text-white w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-800">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Modal Content -->
+            <div class="p-6 space-y-5">
+                <!-- Amount Selector -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-2">ভিক্ষা / সদকার পরিমাণ নির্বাচন করুন (৳)</label>
+                    <div class="grid grid-cols-4 gap-2 mb-3">
+                        <button onclick="selectAmount(10)" class="amt-btn px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-sm font-bold hover:border-emerald-500 text-emerald-400">৳১০</button>
+                        <button onclick="selectAmount(20)" class="amt-btn px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-sm font-bold hover:border-emerald-500 text-emerald-400">৳২০</button>
+                        <button onclick="selectAmount(50)" class="amt-btn px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-sm font-bold hover:border-emerald-500 text-emerald-400">৳৫০</button>
+                        <button onclick="selectAmount(100)" class="amt-btn px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-sm font-bold hover:border-emerald-500 text-emerald-400">৳১০০</button>
+                    </div>
+                    <div class="relative">
+                        <span class="absolute left-3.5 top-2.5 text-slate-400 font-bold">৳</span>
+                        <input type="number" id="custom-amount" min="1" placeholder="অন্য যেকোনো পরিমাণ লিখুন..." class="w-full pl-8 pr-4 py-2 bg-slate-950 border border-slate-700 rounded-xl text-sm text-slate-100 font-bold focus:border-emerald-500">
+                    </div>
+                </div>
+
+                <!-- MFS Payment Gateway Provider Choice -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-2">পেমেন্ট মেথড বেছে নিন</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <label class="cursor-pointer border-2 border-bkash bg-bkash/10 p-2.5 rounded-xl flex flex-col items-center justify-center gap-1 text-xs font-bold text-white transition-all mfs-option">
+                            <input type="radio" name="mfs" value="bkash" checked class="hidden">
+                            <span class="text-bkash font-extrabold text-sm">bKash</span>
+                            <span class="text-[10px] text-slate-300">বিকাশ পেমেন্ট</span>
+                        </label>
+                        <label class="cursor-pointer border border-slate-700 bg-slate-950 p-2.5 rounded-xl flex flex-col items-center justify-center gap-1 text-xs font-bold text-white hover:border-nagad transition-all mfs-option">
+                            <input type="radio" name="mfs" value="nagad" class="hidden">
+                            <span class="text-nagad font-extrabold text-sm">Nagad</span>
+                            <span class="text-[10px] text-slate-300">নগদ পে</span>
+                        </label>
+                        <label class="cursor-pointer border border-slate-700 bg-slate-950 p-2.5 rounded-xl flex flex-col items-center justify-center gap-1 text-xs font-bold text-white hover:border-rocket transition-all mfs-option">
+                            <input type="radio" name="mfs" value="rocket" class="hidden">
+                            <span class="text-rocket font-extrabold text-sm">Rocket</span>
+                            <span class="text-[10px] text-slate-300">রকেট</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Simulated Account & PIN Number -->
+                <div class="space-y-3 bg-slate-950 p-3.5 rounded-2xl border border-slate-800">
+                    <div>
+                        <label class="block text-[11px] text-slate-400 mb-1">আপনার MFS মোবাইল নম্বর</label>
+                        <input type="text" id="mfs-phone" placeholder="01712XXXXXX" value="01712345678" class="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-xs font-mono text-slate-200">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] text-slate-400 mb-1">পিন (PIN) - টেস্ট পিন: 12345</label>
+                        <input type="password" id="mfs-pin" placeholder="XXXXX" value="12345" maxlength="5" class="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-xs font-mono text-slate-200">
+                    </div>
+                </div>
+
+                <!-- Donate Submit Button -->
+                <button onclick="processDonation()" id="btn-process-pay" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-extrabold text-base rounded-2xl shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> ভিক্ষা / সদকা নিশ্চিত করুন
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Card Modal -->
+    <div id="qr-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-sm overflow-hidden p-6 text-center space-y-4">
+            <div class="flex justify-between items-center">
+                <span class="text-xs font-bold text-amber-400">ডিজিটাল ভিক্ষুক কিউআর কার্ড</span>
+                <button onclick="closeQrModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <!-- Card Layout -->
+            <div id="printable-qr-card" class="bg-gradient-to-b from-slate-800 to-slate-950 p-5 rounded-2xl border border-slate-700 space-y-4">
+                <img id="qr-card-avatar" class="w-20 h-20 rounded-full mx-auto object-cover border-2 border-emerald-400 shadow-md" src="" alt="Avatar">
+                <div>
+                    <h3 id="qr-card-name" class="font-bold text-lg text-white">চাচ্চু কাসেম</h3>
+                    <p id="qr-card-loc" class="text-xs text-slate-400">ফার্মগেট ফ্লাওভার, ঢাকা</p>
+                </div>
+
+                <!-- Generated Mock QR Image -->
+                <div class="bg-white p-3 rounded-xl inline-block border-4 border-emerald-500">
+                    <img id="qr-code-img" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=DigitalBeggingBD" alt="QR Code" class="w-36 h-36">
+                </div>
+
+                <div class="text-[11px] text-slate-300 space-y-1">
+                    <p>bKash Personal: <span id="qr-card-bkash" class="font-mono text-bkash font-bold">01700000000</span></p>
+                    <p class="italic text-amber-300" id="qr-card-dua">"আল্লাহ্ আপনার সকল বিপদ দূর করুক"</p>
+                </div>
+            </div>
+
+            <button onclick="copyQrLink()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-2">
+                <i class="fa-solid fa-copy"></i> প্রোফাইল লিংক কপি করুন
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 border-t border-slate-800 mt-12 py-8 px-4">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span>ডিজিটাল বাংলাদেশ ভিশন | ক্যাশলেস অ্যান্ড হ্যাসেলফ্রি সোশ্যাল এড প্লাটফর্ম</span>
+            </div>
+            <div>
+                © ২০২৬ ডিজিটাল ভিক্ষা পোর্টাল বাংলাদেশ। সর্বস্বত্ব সংরক্ষিত।
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Initial Dataset of Digital Beggars in Bangladesh
+        let seekersData = [
+            {
+                id: 's1',
+                name: 'চাচ্চু কাসেম (কাসেম আলী)',
+                category: 'disabled',
+                categoryLabel: 'শারীরিক প্রতিবন্ধী',
+                location: 'ফার্মগেট ফুটওভার ব্রিজ, ঢাকা',
+                coordinates: { x: 45, y: 35 },
+                avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80',
+                target: 600,
+                collected: 420,
+                bkash: '01711223344',
+                nagad: '01811223344',
+                story: 'দুর্ঘটনায় পা হারানোর পর কাজ করতে পারি না। প্রতিদিন নাতি-নাতনির ওষুধের জন্য ৬০০ টাকা প্রয়োজন হয়।',
+                dua: 'আল্লাহ্ আপনার মা-বাবাকে বেহেশত নসিব করুন ও আপনার পরিবারের রিজিক বাড়িয়ে দিন।'
+            },
+            {
+                id: 's2',
+                name: 'খালা মরিয়ম বেগম',
+                category: 'elderly',
+                categoryLabel: 'বয়স্ক ও কর্মক্ষমতাহীন',
+                location: 'ধানমন্ডি ৮/এ সংলগ্ন, ঢাকা',
+                coordinates: { x: 38, y: 55 },
+                avatar: 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=150&auto=format&fit=crop&q=80',
+                target: 500,
+                collected: 310,
+                bkash: '01922334455',
+                nagad: '01722334455',
+                story: 'স্বামী মারা গেছেন ১০ বছর আগে। ঘরে অসুস্থ অন্ধ মেয়ে আছে। প্রতিদিনের খাবার কেনার মতো সাহায্য চাই।',
+                dua: 'আপনার জীবনে কখনো যেন কোনো অভাব না আসে, আল্লাহ্ আপনার বিপদ দূর করুক।'
+            },
+            {
+                id: 's3',
+                name: 'মাওলানা অন্ধ হাফেজ মোশাররফ',
+                category: 'hafeez',
+                categoryLabel: 'অন্ধ হাফেজ',
+                location: 'কারওয়ান বাজার কাঁচাবাজার মোড়',
+                coordinates: { x: 52, y: 48 },
+                avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+                target: 800,
+                collected: 750,
+                bkash: '01833445566',
+                nagad: '01633445566',
+                story: 'জন্ম থেকেই দৃষ্টিহীন। মাদরাসার লিল্লাহ বোর্ডিংয়ের ছোট্ট বাচ্চাদের খাবারের জন্য সদকা সংগ্রহ করছি।',
+                dua: 'হে আল্লাহ্, এই দানকারীকে কেয়ামতের মাঠে আরশের নিচে ছায়া দান করিও।'
+            },
+            {
+                id: 's4',
+                name: 'বাউল সমশের দেওয়ান',
+                category: 'artist',
+                categoryLabel: 'পথশিল্পী ও বাউল',
+                location: 'টিএসসি, ঢাকা বিশ্ববিদ্যালয়',
+                coordinates: { x: 50, y: 65 },
+                avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+                target: 400,
+                collected: 180,
+                bkash: '01544556677',
+                nagad: '01744556677',
+                story: 'একতারা বাজিয়ে গান শোনাই। গানের বিনিময়ে যে যা দেন তাই দিয়ে সংসার চালাই।',
+                dua: 'আল্লাহ্ আপনার মনের সব নেক আশা পূরণ করুক, শান্তিতে রাখুক।'
+            },
+            {
+                id: 's5',
+                name: 'দাদু রফিক উদ্দিন',
+                category: 'elderly',
+                categoryLabel: 'বয়স্ক অসহায়',
+                location: 'জিইসি মোড়, চট্টগ্রাম',
+                coordinates: { x: 75, y: 70 },
+                avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80',
+                target: 700,
+                collected: 540,
+                bkash: '01855667788',
+                nagad: '01955667788',
+                story: 'বয়সের ভারে আর শক্তি পাই না। ডাক্তার বলেছেন চোখের ছানি অপারেশন করতে হবে।',
+                dua: 'আপনার সন্তান যেন আপনার মতো দয়ালু হয়, আল্লাহ্ ভালো রাখুক।'
+            },
+            {
+                id: 's6',
+                name: 'সোবহান ভাই (হুইলচেয়ার)',
+                category: 'disabled',
+                categoryLabel: 'শারীরিক প্রতিবন্ধী',
+                location: 'শাহজালাল মাজার গেট, সিলেট',
+                coordinates: { x: 80, y: 25 },
+                avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80',
+                target: 1000,
+                collected: 890,
+                bkash: '01766778899',
+                nagad: '01866778899',
+                story: 'দুই পা অবশ। হুইলচেয়ার মেরামত ও প্রতিদিনের থেরাপির খরচ চালাতে ভিক্ষা চাই।',
+                dua: 'শাহজালাল (র:) এর পুণ্যভূমির রহমত আল্লাহ্ আপনার ওপর বর্ষণ করুক।'
+            }
+        ];
+
+        let selectedSeeker = null;
+        let selectedAmount = 20;
+        let currentFilter = 'all';
+
+        // Initialize on DOM Ready
+        window.addEventListener('DOMContentLoaded', () => {
+            renderSeekerGrid(seekersData);
+            renderMapPins();
+            setupMfsSelector();
+        });
+
+        // Render Seekers Grid
+        function renderSeekerGrid(items) {
+            const grid = document.getElementById('seekers-grid');
+            grid.innerHTML = '';
+
+            if (items.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-12 text-slate-500">
+                        <i class="fa-solid fa-folder-open text-4xl mb-3 block"></i>
+                        কোনো ভিক্ষুক বা সদকাগ্রহীতা পাওয়া যায়নি।
+                    </div>
+                `;
+                return;
+            }
+
+            items.forEach(seeker => {
+                const percent = Math.min(100, Math.round((seeker.collected / seeker.target) * 100));
+                
+                const card = document.createElement('div');
+                card.className = 'glass-card rounded-2xl p-5 hover:border-slate-700 transition-all duration-300 flex flex-col justify-between space-y-4 group';
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-start gap-3">
+                            <img src="${seeker.avatar}" alt="${seeker.name}" class="w-14 h-14 rounded-2xl object-cover border border-slate-700 group-hover:border-emerald-500 transition-all">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-slate-800 text-amber-400 border border-amber-500/20">
+                                        ${seeker.categoryLabel}
+                                    </span>
+                                    <span class="text-[10px] text-emerald-400 font-mono font-bold flex items-center gap-1">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> অনলাইন
+                                    </span>
+                                </div>
+                                <h3 class="font-bold text-white text-base truncate mt-1">${seeker.name}</h3>
+                                <p class="text-xs text-slate-400 flex items-center gap-1 truncate">
+                                    <i class="fa-solid fa-location-dot text-rose-400 text-[10px]"></i> ${seeker.location}
+                                </p>
+                            </div>
+                        </div>
+
+                        <p class="text-xs text-slate-300 my-3 line-clamp-2 bg-slate-950/50 p-2.5 rounded-xl border border-slate-800/80 italic">
+                            "${seeker.story}"
+                        </p>
+
+                        <!-- Progress Bar -->
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-xs">
+                                <span class="text-slate-400">আজকের অর্জন: <strong class="text-emerald-400">৳${seeker.collected}</strong></span>
+                                <span class="text-slate-400 font-mono">লক্ষ্য: ৳${seeker.target} (${percent}%)</span>
+                            </div>
+                            <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                                <div class="h-full bg-gradient-to-r from-emerald-500 to-amber-400 rounded-full transition-all duration-500" style="width: ${percent}%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Badges & Action -->
+                    <div class="pt-2 border-t border-slate-800 flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-1 text-[11px] font-bold">
+                            <span class="text-bkash bg-bkash/10 px-1.5 py-0.5 rounded">bKash</span>
+                            <span class="text-nagad bg-nagad/10 px-1.5 py-0.5 rounded">Nagad</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="openQrModal('${seeker.id}')" class="p-2 bg-slate-800 hover:bg-slate-700 text-amber-400 rounded-xl text-xs transition-all" title="QR Code">
+                                <i class="fa-solid fa-qrcode"></i>
+                            </button>
+                            <button onclick="openCheckoutModal('${seeker.id}')" class="px-3.5 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:brightness-110 text-slate-950 font-bold rounded-xl text-xs transition-all flex items-center gap-1.5 shadow-md">
+                                <i class="fa-solid fa-hand-holding-heart"></i> ভিক্ষা দিন
+                            </button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Filtering logic
+        function filterSeekers() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const filtered = seekersData.filter(s => {
+                const matchesCat = currentFilter === 'all' || s.category === currentFilter;
+                const matchesSearch = s.name.toLowerCase().includes(query) || 
+                                      s.location.toLowerCase().includes(query) || 
+                                      s.story.toLowerCase().includes(query);
+                return matchesCat && matchesSearch;
+            });
+            renderSeekerGrid(filtered);
+        }
+
+        function setCategoryFilter(category) {
+            currentFilter = category;
+            document.querySelectorAll('.cat-filter-btn').forEach(btn => {
+                btn.className = 'cat-filter-btn px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap bg-slate-800 text-slate-300 hover:bg-slate-700';
+            });
+            event.target.closest('button').className = 'cat-filter-btn px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap bg-emerald-600 text-white';
+            filterSeekers();
+        }
+
+        // Render Pins on Radar Map
+        function renderMapPins() {
+            const container = document.getElementById('map-pins-container');
+            container.innerHTML = '';
+
+            seekersData.forEach(seeker => {
+                const pin = document.createElement('div');
+                pin.className = 'absolute cursor-pointer transform -translate-x-1/2 -translate-y-1/2 group';
+                pin.style.left = `${seeker.coordinates.x}%`;
+                pin.style.top = `${seeker.coordinates.y}%`;
+                
+                pin.innerHTML = `
+                    <div class="relative flex items-center justify-center">
+                        <span class="w-8 h-8 rounded-full bg-emerald-500/20 border-2 border-emerald-400 animate-ping absolute"></span>
+                        <div class="w-10 h-10 rounded-full bg-slate-900 border-2 border-amber-400 overflow-hidden shadow-lg group-hover:scale-125 transition-transform flex items-center justify-center">
+                            <img src="${seeker.avatar}" class="w-full h-full object-cover" alt="Pin">
+                        </div>
+                    </div>
+                    <!-- Tooltip Hover -->
+                    <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:flex flex-col items-center min-w-[140px] bg-slate-900 border border-slate-700 p-2 rounded-xl shadow-2xl z-20 pointer-events-none">
+                        <span class="text-xs font-bold text-white text-center">${seeker.name}</span>
+                        <span class="text-[10px] text-emerald-400">${seeker.location}</span>
+                        <span class="text-[10px] text-amber-300 mt-0.5">লক্ষ্য: ৳${seeker.target}</span>
+                    </div>
+                `;
+
+                pin.onclick = () => openCheckoutModal(seeker.id);
+                container.appendChild(pin);
+            });
+        }
+
+        // Modal Handlers
+        function openCheckoutModal(id) {
+            selectedSeeker = seekersData.find(s => s.id === id);
+            if (!selectedSeeker) return;
+
+            document.getElementById('modal-seeker-avatar').src = selectedSeeker.avatar;
+            document.getElementById('modal-seeker-name').innerText = selectedSeeker.name;
+            document.getElementById('modal-seeker-location').innerText = selectedSeeker.location;
+
+            const modal = document.getElementById('checkout-modal');
+            const box = document.getElementById('modal-box');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                box.classList.remove('scale-95', 'opacity-0');
+                box.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeCheckoutModal() {
+            const modal = document.getElementById('checkout-modal');
+            const box = document.getElementById('modal-box');
+            box.classList.remove('scale-100', 'opacity-100');
+            box.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200);
+        }
+
+        function selectAmount(amt) {
+            selectedAmount = amt;
+            document.getElementById('custom-amount').value = '';
+            document.querySelectorAll('.amt-btn').forEach(b => {
+                b.classList.remove('bg-emerald-600', 'text-white', 'border-emerald-500');
+                b.classList.add('bg-slate-800', 'text-emerald-400', 'border-slate-700');
+            });
+            event.target.classList.remove('bg-slate-800', 'text-emerald-400', 'border-slate-700');
+            event.target.classList.add('bg-emerald-600', 'text-white', 'border-emerald-500');
+        }
+
+        function setupMfsSelector() {
+            const options = document.querySelectorAll('.mfs-option');
+            options.forEach(opt => {
+                opt.addEventListener('click', function() {
+                    options.forEach(o => o.className = 'cursor-pointer border border-slate-700 bg-slate-950 p-2.5 rounded-xl flex flex-col items-center justify-center gap-1 text-xs font-bold text-white transition-all mfs-option');
+                    this.className = 'cursor-pointer border-2 border-emerald-500 bg-emerald-500/10 p-2.5 rounded-xl flex flex-col items-center justify-center gap-1 text-xs font-bold text-white transition-all mfs-option';
+                });
+            });
+        }
+
+        // Process Alms Donation Action
+        function processDonation() {
+            const customAmtInput = document.getElementById('custom-amount').value;
+            const finalAmt = customAmtInput ? parseInt(customAmtInput) : selectedAmount;
+            const pin = document.getElementById('mfs-pin').value;
+
+            if (!finalAmt || finalAmt <= 0) {
+                showToast('অনুগ্রহ করে সঠিক টাকার পরিমাণ প্রদান করুন!');
+                return;
+            }
+
+            if (!pin || pin.length < 4) {
+                showToast('সঠিক পিন (PIN) নম্বর প্রদান করুন!');
+                return;
+            }
+
+            const btn = document.getElementById('btn-process-pay');
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> প্রসেসিং হচ্ছে...`;
+
+            setTimeout(() => {
+                // Update dataset stats
+                selectedSeeker.collected += finalAmt;
+                
+                // Update UI global counter
+                const currentTotal = parseInt(document.getElementById('stat-total-collected').innerText.replace(/[^\d]/g, '')) || 0;
+                document.getElementById('stat-total-collected').innerText = '৳' + (currentTotal + finalAmt).toLocaleString('bn-BD');
+
+                // Trigger confetti fireworks
+                confetti({
+                    particleCount: 80,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+
+                closeCheckoutModal();
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> ভিক্ষা / সদকা নিশ্চিত করুন`;
+
+                // Play Audio Dua Blessing!
+                playCustomDua(selectedSeeker.dua);
+
+                // Show Success Toast
+                showToast(`সফলভাবে ৳${finalAmt} ভিক্ষা দেওয়া হয়েছে! ডিজিটাল দোয়া শুনুন।`);
+
+                // Re-render grid & radar
+                renderSeekerGrid(seekersData);
+            }, 1200);
+        }
+
+        // Open QR Modal
+        function openQrModal(id) {
+            const seeker = seekersData.find(s => s.id === id) || seekersData[0];
+            document.getElementById('qr-card-avatar').src = seeker.avatar;
+            document.getElementById('qr-card-name').innerText = seeker.name;
+            document.getElementById('qr-card-loc').innerText = seeker.location;
+            document.getElementById('qr-card-bkash').innerText = seeker.bkash;
+            document.getElementById('qr-card-dua').innerText = `"${seeker.dua}"`;
+            document.getElementById('qr-code-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=BkashBeggar_${seeker.bkash}`;
+
+            document.getElementById('qr-modal').classList.remove('hidden');
+        }
+
+        function closeQrModal() {
+            document.getElementById('qr-modal').classList.add('hidden');
+        }
+
+        function copyQrLink() {
+            const text = "https://digital-vikha.bd/seeker/" + Math.floor(Math.random()*10000);
+            const tempInput = document.createElement('input');
+            document.body.appendChild(tempInput);
+            tempInput.value = text;
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            showToast('ডিজিটাল ভিক্ষুক প্রোফাইল লিংক কপি করা হয়েছে!');
+        }
+
+        // Web Speech Synth Audio Dua Player
+        function playCustomDua(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); // Stop active speech
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'bn-BD'; // Bengali language
+                utterance.rate = 0.9;
+                utterance.pitch = 1.0;
+                window.speechSynthesis.speak(utterance);
+            } else {
+                showToast('আপনার ব্রাউজারে অডিও ভয়েস ব্যাকগ্রাউন্ড সাপোর্ট করছে না।');
+            }
+        }
+
+        function playInputDua() {
+            const val = document.getElementById('custom-dua-input').value;
+            if (!val) {
+                showToast('দয়া করে দোয়ার টেক্সট লিখুন!');
+                return;
+            }
+            playCustomDua(val);
+        }
+
+        // Register new seeker handler
+        function handleSeekerRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('reg-name').value;
+            const location = document.getElementById('reg-location').value;
+            const category = document.getElementById('reg-category').value;
+            const target = parseInt(document.getElementById('reg-target').value);
+            const bkash = document.getElementById('reg-bkash').value;
+            const nagad = document.getElementById('reg-nagad').value || bkash;
+            const story = document.getElementById('reg-story').value;
+            const dua = document.getElementById('reg-dua').value;
+
+            const categoryLabels = {
+                'disabled': 'শারীরিক প্রতিবন্ধী',
+                'elderly': 'বয়স্ক ও কর্মক্ষমতাহীন',
+                'hafeez': 'অন্ধ হাফেজ',
+                'artist': 'পথশিল্পী'
+            };
+
+            const newSeeker = {
+                id: 's' + (seekersData.length + 1),
+                name: name,
+                category: category,
+                categoryLabel: categoryLabels[category] || 'অসহায় সাহায্যপ্রার্থী',
+                location: location,
+                coordinates: { x: Math.floor(Math.random() * 60) + 20, y: Math.floor(Math.random() * 60) + 20 },
+                avatar: `https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80`,
+                target: target,
+                collected: 0,
+                bkash: bkash,
+                nagad: nagad,
+                story: story,
+                dua: dua
+            };
+
+            seekersData.unshift(newSeeker);
+            document.getElementById('seeker-register-form').reset();
+            
+            showToast('অভিনন্দন! আপনার ডিজিটাল ভিক্ষুক প্রোফাইল ও কিউআর আইডি সফলভাবে তৈরি হয়েছে।');
+            switchTab('explore');
+            renderSeekerGrid(seekersData);
+            renderMapPins();
+            openQrModal(newSeeker.id);
+        }
+
+        // Tab Switching Logic
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.className = 'nav-btn px-4 py-1.5 rounded-full text-sm font-medium text-slate-300 hover:text-white transition-all';
+            });
+
+            const activeNav = document.getElementById(`nav-${tabId}`);
+            if (activeNav) {
+                activeNav.className = 'nav-btn px-4 py-1.5 rounded-full text-sm font-medium transition-all bg-emerald-600 text-white shadow-md';
+            }
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        function openRegisterModal() {
+            switchTab('register');
+        }
+
+        // Custom Toast Notification System
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-5 right-5 z-50 bg-emerald-600 text-white font-bold px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-2 text-sm border border-emerald-400 transition-all transform translate-y-full opacity-0';
+            toast.innerHTML = `<i class="fa-solid fa-circle-check text-lg"></i> ${message}`;
+            
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.remove('translate-y-full', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-full', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+    </script>
+</body>
+</html>
