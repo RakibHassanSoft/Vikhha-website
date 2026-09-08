@@ -3,10 +3,6 @@
 # This repository holds two apps, so in the Netlify UI set
 #   Site configuration → Build & deploy → Package directory = frontend
 # Netlify then reads this file and runs the build from this directory.
-#
-# The Next.js runtime (OpenNext adapter) installs itself automatically and
-# should NOT be pinned — Netlify keeps it current with each Next.js release,
-# so there is deliberately no [[plugins]] block here.
 
 [build]
   command = "npm run build"
@@ -15,8 +11,9 @@
 [build.environment]
   NODE_VERSION = "22"
 
-# Long-cache the immutable build output. Everything else is handled by the
-# Next.js runtime, which knows which routes are static and which are rendered.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
 [[headers]]
   for = "/_next/static/*"
   [headers.values]
