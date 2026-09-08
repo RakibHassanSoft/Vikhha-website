@@ -126,10 +126,19 @@ calls `POST /api/v1/ai/dua` and the key never leaves the server.
 4. Add the environment variables from the table above.
 5. In MongoDB Atlas → **Network Access**, allow Render's outbound IPs, or
    `0.0.0.0/0` if you are on the free tier and cannot pin them.
-6. After the first deploy, seed once from the Render shell: `npm run seed`.
+6. Seed once — **from your own machine, not from Render**. The free plan has no
+   shell, and it does not need one: the seed script talks to the same Atlas
+   cluster your Render service uses, so running it locally seeds production.
 
-`render.yaml` in `backend/` describes all of this if you prefer a Blueprint
-deploy.
+   ```bash
+   cd backend
+   npm run seed
+   ```
+
+`render.yaml` at the repository root describes all of this if you prefer a
+Blueprint deploy (Render → **New → Blueprint** → pick the repo). Render only
+looks for that file at the repository root, which is why it lives there rather
+than inside `backend/`.
 
 > Render's free tier sleeps after 15 minutes of inactivity, so the first
 > request after idling takes ~30 seconds. The frontend shows loading skeletons
@@ -137,18 +146,35 @@ deploy.
 
 ### Frontend → Vercel
 
-1. Vercel → **New Project** → same repo.
-2. **Root Directory:** `frontend`.
-3. Environment variables:
-   - `NEXT_PUBLIC_API_URL` = `https://<your-render-service>.onrender.com/api/v1`
-   - `NEXT_PUBLIC_SITE_URL` = `https://<your-vercel-domain>`
-4. Deploy, then add that Vercel domain to the backend's `CORS_ORIGINS` and
-   redeploy the backend.
+The backend is live at `https://digital-vikha-backend.onrender.com`, and
+`frontend/.env.local` already points at it.
 
-> The `vercel.json` at the repository root is only used if you deploy **without**
-> setting a Root Directory. Setting **Root Directory = `frontend`** (the option
-> above) is simpler, and Vercel ignores the root file in that case. Use one
-> approach or the other, not both.
+1. Vercel → **Add New… → Project** → import `RakibHassanSoft/Vikhha-website`.
+2. **Project Name:** `vikha-sadaqah` — this becomes the URL,
+   `https://vikha-sadaqah.vercel.app`.
+3. **Root Directory:** `frontend`. This repository holds two apps, and Vercel
+   needs to be told which one. Framework preset is detected as Next.js.
+4. Environment variables (add before the first deploy, for **all** environments):
+
+   | Name | Value |
+   |---|---|
+   | `NEXT_PUBLIC_API_URL` | `https://digital-vikha-backend.onrender.com/api/v1` |
+   | `NEXT_PUBLIC_SITE_URL` | `https://vikha-sadaqah.vercel.app` |
+
+5. Deploy.
+
+`NEXT_PUBLIC_*` values are compiled into the bundle, so changing one in the
+dashboard does nothing until you redeploy. If the project name is taken and you
+end up on a different domain, update `NEXT_PUBLIC_SITE_URL` and redeploy.
+
+No CORS work is needed: the backend already accepts any `*.vercel.app` origin,
+including preview deployments. A custom domain is the exception — add it to the
+backend's `CORS_ORIGINS` on Render and redeploy the backend.
+
+`frontend/vercel.json` sets cache and security headers; Vercel reads it from the
+root directory you configured above. `frontend/netlify.toml` is left in place in
+case you ever want Netlify instead — the two are independent and neither
+interferes with the other.
 
 ---
 
@@ -274,6 +300,11 @@ on a timer, which keeps it inside their one-request-per-second fair-use policy.
   ever loaded for admin queries.
 - **Rate limits** are per-route: 30 auth attempts / 15 min, 40 donations / hour,
   30 dua generations / 10 min, 300 location pings / hour.
+- **A sleeping API never turns a shared link into a 404.** The seeker profile
+  page is server-rendered for SEO, but it only returns 404 when the API says the
+  seeker genuinely does not exist. If the API times out or errors — which is the
+  normal case on a free tier that sleeps after 15 minutes — the page renders and
+  the browser fetches the profile itself.
 - **Gemini is optional and never fatal.** If the key is missing, the request
   fails, or it times out after 12 s, the endpoint falls back to a curated pool of
   Bangla duas and reports `source: "fallback"`.

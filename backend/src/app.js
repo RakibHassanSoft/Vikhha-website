@@ -31,9 +31,16 @@ export function createApp() {
         if (!origin) return cb(null, true);
         if (env.corsOrigins.length === 0) return cb(null, true);
         if (env.corsOrigins.includes(origin)) return cb(null, true);
-        // Allow any Vercel preview deployment of this project.
-        if (/^https:\/\/[a-z0-9-]+\.vercel\.app$/i.test(origin)) return cb(null, true);
-        return cb(new Error(`Origin not allowed by CORS: ${origin}`));
+        // Allow preview deployments on the usual hosts. Netlify previews look
+        // like https://deadbeef--my-site.netlify.app, which the dash in the
+        // character class already covers.
+        if (/^https:\/\/[a-z0-9-]+\.(vercel|netlify)\.app$/i.test(origin)) return cb(null, true);
+
+        // Refuse by withholding the header rather than throwing. CORS is a
+        // browser mechanism, never server-side authorisation, so an unknown
+        // Origin should not turn every request into a 500 with a stack trace
+        // in the logs — the browser blocks the response either way.
+        return cb(null, false);
       },
       credentials: true,
     })

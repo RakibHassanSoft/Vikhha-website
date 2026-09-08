@@ -11,10 +11,13 @@ export const revalidate = 30;
  */
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const payload = await fetchSeekerServerSide(slug);
-  if (!payload?.seeker) return { title: 'সাহায্যপ্রার্থী পাওয়া যায়নি' };
+  const result = await fetchSeekerServerSide(slug);
 
-  const { seeker } = payload;
+  if (result.status !== 'ok') {
+    return { title: 'সাহায্যপ্রার্থীর প্রোফাইল' };
+  }
+
+  const { seeker } = result.data;
   return {
     title: seeker.name,
     description: seeker.story?.slice(0, 155),
@@ -28,8 +31,13 @@ export async function generateMetadata({ params }) {
 
 export default async function SeekerProfilePage({ params }) {
   const { slug } = await params;
-  const payload = await fetchSeekerServerSide(slug);
-  if (!payload?.seeker) notFound();
+  const result = await fetchSeekerServerSide(slug);
+
+  // Only a genuine 404 from the API is a 404 here. If the API simply did not
+  // answer — asleep, restarting, rate limited — the page still renders and the
+  // browser fetches the profile itself, so a shared link never dead-ends
+  // because of a cold start.
+  if (result.status === 'notfound') notFound();
 
   return (
     <div className="space-y-4">
@@ -37,8 +45,9 @@ export default async function SeekerProfilePage({ params }) {
         ← সব সাহায্যপ্রার্থী
       </Link>
       <SeekerProfileClient
-        seeker={payload.seeker}
-        recentDonations={payload.recentDonations || []}
+        slug={slug}
+        seeker={result.status === 'ok' ? result.data.seeker : null}
+        recentDonations={result.status === 'ok' ? result.data.recentDonations || [] : []}
       />
     </div>
   );

@@ -69,6 +69,10 @@ src/
 - **The profile page refreshes itself once on arrival.** It is server-rendered
   and cached for 30 seconds for SEO, which is fine for the story and photo but
   would make "এখন লাইভ" and today's total read as current while being stale.
+  That same fetch doubles as the recovery path: `fetchSeekerServerSide`
+  distinguishes a real 404 from an unreachable API, so when the backend is
+  cold-starting the page renders a skeleton and loads client-side instead of
+  dead-ending on a link someone shared.
 
 ## Commands
 

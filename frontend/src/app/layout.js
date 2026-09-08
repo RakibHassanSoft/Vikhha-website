@@ -4,7 +4,13 @@ import { ToastProvider } from '@/components/Toast';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
 export const metadata = {
+  // Makes every canonical and Open Graph URL absolute. Without it, a shared
+  // link renders its preview against the deployment's own hostname, which on a
+  // preview build is not the address anyone actually visits.
+  metadataBase: new URL(siteUrl),
   title: {
     default: 'ডিজিটাল ভিক্ষা ও সদকা পোর্টাল বিডি',
     template: '%s | ডিজিটাল ভিক্ষা ও সদকা পোর্টাল',
@@ -15,9 +21,17 @@ export const metadata = {
   openGraph: {
     type: 'website',
     locale: 'bn_BD',
+    url: siteUrl,
+    siteName: 'ডিজিটাল ভিক্ষা ও সদকা পোর্টাল',
     title: 'ডিজিটাল ভিক্ষা ও সদকা পোর্টাল বিডি',
     description: 'যাচাইকৃত সাহায্যপ্রার্থীদের সরাসরি সদকা পাঠান।',
   },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'ডিজিটাল ভিক্ষা ও সদকা পোর্টাল বিডি',
+    description: 'যাচাইকৃত সাহায্যপ্রার্থীদের সরাসরি সদকা পাঠান।',
+  },
+  robots: { index: true, follow: true },
 };
 
 export const viewport = {

@@ -183,14 +183,32 @@ test('ai dua returns bangla text (gemini or curated fallback)', async () => {
   assert.match(body.data.text, /[ঀ-৿]/);
 });
 
-test('cors allows the configured origin and vercel previews', async () => {
-  const allowed = await fetch(`${base}/health`, { headers: { Origin: 'http://localhost:3000' } });
-  assert.equal(allowed.headers.get('access-control-allow-origin'), 'http://localhost:3000');
+test('cors allows the configured origin and vercel/netlify deployments', async () => {
+  for (const origin of [
+    'http://localhost:3000',
+    'https://vikha-git-main-rakib.vercel.app',
+    'https://digital-vikha.netlify.app',
+    'https://68f2ab--digital-vikha.netlify.app',
+  ]) {
+    const res = await fetch(`${base}/health`, { headers: { Origin: origin } });
+    assert.equal(res.headers.get('access-control-allow-origin'), origin, `${origin} should be allowed`);
+  }
+});
 
-  const preview = await fetch(`${base}/health`, {
-    headers: { Origin: 'https://vikha-git-main-rakib.vercel.app' },
-  });
-  assert.equal(preview.status, 200);
+test('cors refuses an unknown origin quietly, without a 500', async () => {
+  for (const origin of [
+    'https://evil-site.com',
+    'https://digital-vikha.netlify.app.evil.com',
+    'http://digital-vikha.netlify.app',
+  ]) {
+    const res = await fetch(`${base}/health`, { headers: { Origin: origin } });
+    assert.equal(res.status, 200, `${origin} should not blow up the request`);
+    assert.equal(
+      res.headers.get('access-control-allow-origin'),
+      null,
+      `${origin} must not receive the CORS header`
+    );
+  }
 });
 
 test('malformed json produces a 400, not a crash', async () => {

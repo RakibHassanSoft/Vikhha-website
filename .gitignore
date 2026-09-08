@@ -1,7 +1,6 @@
 node_modules/
 .env
 .env.local
-.env.example
 .next/
 out/
 dist/
@@ -9,3 +8,6 @@ dist/
 .DS_Store
 .vercel
 coverage/
+
+# Local Netlify folder
+.netlify

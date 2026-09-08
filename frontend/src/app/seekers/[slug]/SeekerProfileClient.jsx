@@ -10,35 +10,88 @@ import { speakBangla } from '@/lib/speech';
 import { taka, bnNumber, timeAgoBn } from '@/lib/bn';
 import { METHOD_LABELS } from '@/lib/constants';
 
-export default function SeekerProfileClient({ seeker: initialSeeker, recentDonations: initialDonations }) {
+export default function SeekerProfileClient({
+  slug,
+  seeker: initialSeeker,
+  recentDonations: initialDonations,
+}) {
   const [donateOpen, setDonateOpen] = useState(false);
   const [qrOpen, setQrOpen] = useState(false);
 
   /*
-   * The page itself is server-rendered and cached for 30s so shared links carry
-   * real metadata. That cache is fine for the story and the photo, but not for
-   * "এখন লাইভ" or today's total — those would read as current while being up to
-   * half a minute stale. So the browser refreshes them once on arrival.
+   * Two jobs for this fetch.
+   *
+   * When the server render succeeded, it refreshes the values the 30s page
+   * cache would make stale — "এখন লাইভ" and today's total read as current, so
+   * they must not be half a minute old.
+   *
+   * When the server render could not reach the API (a sleeping free-tier
+   * instance, a restart), `initialSeeker` is null and this fetch is how the
+   * page gets its content at all, rather than the visitor hitting a 404 on a
+   * link someone shared with them.
    */
   const [seeker, setSeeker] = useState(initialSeeker);
   const [recentDonations, setRecentDonations] = useState(initialDonations);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     let alive = true;
     api
-      .getSeeker(initialSeeker.slug)
+      .getSeeker(slug)
       .then(({ data }) => {
         if (!alive || !data?.seeker) return;
         setSeeker(data.seeker);
         setRecentDonations(data.recentDonations || []);
+        setError(null);
       })
-      .catch(() => {
-        /* keep the server-rendered copy */
+      .catch((err) => {
+        // Only surfaced when there is nothing rendered to fall back on.
+        if (alive && !initialSeeker) setError(err);
       });
     return () => {
       alive = false;
     };
-  }, [initialSeeker.slug]);
+  }, [slug, initialSeeker]);
+
+  if (!seeker) {
+    if (error) {
+      return (
+        <div className="glass-card p-10 text-center">
+          <div className="mb-3 text-4xl">{error.status === 404 ? '🔍' : '🌐'}</div>
+          <h1 className="text-xl font-bold text-white">
+            {error.status === 404 ? 'প্রোফাইলটি পাওয়া যায়নি' : 'প্রোফাইলটি এখন লোড করা যাচ্ছে না'}
+          </h1>
+          <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-slate-400">
+            {error.status === 404
+              ? 'এই ঠিকানায় কোনো সাহায্যপ্রার্থী নেই, অথবা প্রোফাইলটি এখনো যাচাইয়ের অপেক্ষায় আছে।'
+              : 'সার্ভার সাড়া দিচ্ছে না — কিছুক্ষণ পর আবার চেষ্টা করুন।'}
+          </p>
+          <div className="mt-6 flex justify-center gap-2">
+            <button type="button" onClick={() => window.location.reload()} className="btn-primary">
+              আবার চেষ্টা করুন
+            </button>
+            <Link href="/" className="btn-ghost">সব সাহায্যপ্রার্থী</Link>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="glass-card animate-pulse space-y-4 p-6">
+        <div className="flex gap-5">
+          <div className="h-28 w-28 rounded-3xl bg-slate-800" />
+          <div className="flex-1 space-y-3">
+            <div className="h-3 w-28 rounded bg-slate-800" />
+            <div className="h-6 w-64 rounded bg-slate-800" />
+            <div className="h-3 w-48 rounded bg-slate-800" />
+          </div>
+        </div>
+        <div className="h-20 rounded-2xl bg-slate-800/70" />
+        <div className="h-2 rounded-full bg-slate-800" />
+        <div className="h-12 rounded-xl bg-slate-800" />
+      </div>
+    );
+  }
 
   const methods = ['bkash', 'nagad', 'rocket'].filter((m) => seeker.payments?.[m]);
 

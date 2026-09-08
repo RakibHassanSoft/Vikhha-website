@@ -145,16 +145,33 @@ export const api = {
     apiFetch(`/admin/donations/${id}/review`, { method: 'PATCH', body }),
 };
 
-/** Server-side fetch used by the seeker profile page for SEO. */
+/**
+ * Server-side fetch used by the seeker profile page for SEO.
+ *
+ * Distinguishes "this seeker does not exist" from "the API did not answer",
+ * because they deserve opposite outcomes: the first is a real 404, the second
+ * must NOT be, or every shared profile link would break whenever the API is
+ * cold-starting. Free hosting tiers sleep after inactivity and take ~30s to
+ * wake, so this is the normal case, not an edge case.
+ *
+ * Returns { status: 'ok', data } | { status: 'notfound' } | { status: 'unavailable' }
+ */
 export async function fetchSeekerServerSide(slug) {
   try {
     const res = await fetch(`${API_URL}/seekers/${encodeURIComponent(slug)}`, {
       next: { revalidate: 30 },
+      // Never hold the render open waiting for a sleeping server.
+      signal: AbortSignal.timeout(8000),
     });
-    if (!res.ok) return null;
+
+    if (res.status === 404) return { status: 'notfound' };
+    if (!res.ok) return { status: 'unavailable' };
+
     const json = await res.json();
-    return json?.data || null;
+    if (!json?.data?.seeker) return { status: 'unavailable' };
+    return { status: 'ok', data: json.data };
   } catch {
-    return null;
+    // Timeout, DNS failure, connection refused — the seeker may well exist.
+    return { status: 'unavailable' };
   }
 }
